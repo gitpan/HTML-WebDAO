@@ -1,0 +1,6 @@
+Revision history for Perl extension HTML::WebDAO.
+
+0.01  Tue Dec 16 11:57:50 2003
+	- original version; created by h2xs 1.22
+	- import into sf.net cvs
+#$Id: Changes,v 1.2 2004/03/09 20:34:25 zagap Exp $

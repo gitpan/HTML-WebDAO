@@ -19,6 +19,7 @@ lib/HTML/WebDAO/Session.pm
 lib/HTML/WebDAO/Sessionco.pm
 lib/HTML/WebDAO/Sessiondb.pm
 lib/HTML/WebDAO/Sessiong.pm
+lib/HTML/WebDAO/SessionID.pm
 Makefile.PL
 MANIFEST			This list of files
 META.yml

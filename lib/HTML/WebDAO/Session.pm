@@ -1,4 +1,4 @@
-#$Id: Session.pm,v 1.2 2004/03/09 20:34:26 zagap Exp $
+#$Id: Session.pm,v 1.3 2004/04/29 16:21:07 zagap Exp $
 
 package HTML::WebDAO::Session;
 use HTML::WebDAO::Base;
@@ -231,21 +231,25 @@ $self->Header()->{$name}=$par;
 sub _get_params {
 my $self=shift;
 my $_cgi=$self->Cgi_obj();
-my $params={};
+my %params;
 my $extra=$self->Cgi_env->{path_info};
-#srtrip event's from url's
-while ($extra=~s/(?:ev)\/(.*?)\/(.*?)\///g){
-	$params{$1}=$2;
-	}
-#strip variable from url
-while ($extra=~s/(?:par)\/((?! par|evn).*)\/(.*)\///g){
-      my ($var,$val)=($1,$2);
-      $var=~s/\//\./g;
-      $params{$var}=$val;
-	}
-if ($extra=~s/((?:(?!\/).)*)$//) {$self->Cgi_env->{file}=$1;}
-$extra.="\/" unless ($extra=~/\/$/);
-$self->Cgi_env->{path_info}=$extra;
+#Prepare param from url
+#strip filename if exists
+if ($extra=~s/([^\/]+)$//) {$self->Cgi_env->{file}=$1;}
+my (@pars)=split (/(?:par|ev)\//,$extra);
+$self->Cgi_env->{path_info}=shift @pars;
+map {
+	(
+	m%^(evn_[^/]+)/([^/]+)/% || m%(.*)/([^/]+)/%
+						)
+			&&
+		do {
+		my ($var,$val)=($1,$2);
+		$var=~s/\//\./g;
+		$params{$var}=$val;
+		}
+	} 
+	@pars;
 foreach my $i ($_cgi->param()){
 	$params{$i}=$_cgi->param($i);
 	}

@@ -1,4 +1,4 @@
-#$Id: TabMenu.pm,v 1.3 2004/01/22 08:02:15 zagap Exp $
+#$Id: TabMenu.pm,v 1.4 2004/03/16 13:00:20 zagap Exp $
 
 package HTML::WebDAO::Comp::TabMenu;
 use HTML::WebDAO::Base;
@@ -93,7 +93,7 @@ sub DrawMenu{
 my ($self)=@_;
 my $str;
 my %hash_map=%{$self->TmpItems()};
-foreach my $key (keys %hash_map){
+foreach my $key (sort keys %hash_map){
 my (	$name		,
 	$item_color	,
 	$flag_color	,

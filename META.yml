@@ -1,17 +1,17 @@
 --- #YAML:1.0
 name: HTML-WebDAO
-version: 0.01
+version: 0.02
+author:
+  - |-
+    Zahatski Aliaksandr, E<lt>zagap@users.sourceforge.netE<gt>
+abstract: Perl extension for create complex web application
 license: perl
-distribution_type: module
 requires:
   FreezeThaw: 0.43
-recommends: {}
-build_requires: {}
-conflicts: {}
 provides:
   HTML::WebDAO:
     file: lib/HTML/WebDAO.pm
-    version: 0.01
+    version: 0.02
   HTML::WebDAO::Activator:
     file: lib/HTML/WebDAO/Activator.pm
   HTML::WebDAO::Base:
@@ -42,10 +42,12 @@ provides:
     file: lib/HTML/WebDAO/Lib/RawHTML.pm
   HTML::WebDAO::Session:
     file: lib/HTML/WebDAO/Session.pm
+  HTML::WebDAO::SessionID:
+    file: lib/HTML/WebDAO/SessionID.pm
   HTML::WebDAO::Sessionco:
     file: lib/HTML/WebDAO/Sessionco.pm
   HTML::WebDAO::Sessiondb:
     file: lib/HTML/WebDAO/Sessiondb.pm
   HTML::WebDAO::Sessiong:
     file: lib/HTML/WebDAO/Sessiong.pm
-generated_by: Module::Build version 0.21
+generated_by: Module::Build version 0.24

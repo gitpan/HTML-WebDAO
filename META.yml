@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: HTML-WebDAO
-version: 0.02
+version: 0.03
 author:
   - |-
     Zahatski Aliaksandr, E<lt>zagap@users.sourceforge.netE<gt>
@@ -11,7 +11,7 @@ requires:
 provides:
   HTML::WebDAO:
     file: lib/HTML/WebDAO.pm
-    version: 0.02
+    version: 0.03
   HTML::WebDAO::Activator:
     file: lib/HTML/WebDAO/Activator.pm
   HTML::WebDAO::Base:

@@ -1,5 +1,6 @@
 Revision history for Perl extension HTML::WebDAO.
-
+0.04	20040815
+	- fix cpan module prereq
 0.03	20040810
 	- fix perl version
 0.02	20040615
@@ -9,4 +10,4 @@ Revision history for Perl extension HTML::WebDAO.
 	- original version; created by h2xs 1.22
 	- import into sf.net cvs
 
-#$Id: Changes,v 1.3 2004/08/10 07:51:07 zagap Exp $
+#$Id: Changes,v 1.4 2004/08/15 07:26:59 zagap Exp $

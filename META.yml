@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: HTML-WebDAO
-version: 0.03
+version: 0.04
 author:
   - |-
     Zahatski Aliaksandr, E<lt>zagap@users.sourceforge.netE<gt>
@@ -8,10 +8,11 @@ abstract: Perl extension for create complex web application
 license: perl
 requires:
   FreezeThaw: 0.43
+  MLDBM: 0
 provides:
   HTML::WebDAO:
     file: lib/HTML/WebDAO.pm
-    version: 0.03
+    version: 0.04
   HTML::WebDAO::Activator:
     file: lib/HTML/WebDAO/Activator.pm
   HTML::WebDAO::Base:

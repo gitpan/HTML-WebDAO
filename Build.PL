@@ -4,6 +4,7 @@ Module::Build->new
     license => 'perl',
    prereq => {
 	      'FreezeThaw' => 0.43,
+	      'MLDBM'	=> '0',
 	     },
     create_makefile_pl=>$ENV{WebDAO_OUTCPAN} ? 'traditional':'passthrough'
     )->create_build_script;

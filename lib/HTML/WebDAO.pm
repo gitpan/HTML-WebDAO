@@ -1,4 +1,4 @@
-#$Id: WebDAO.pm,v 1.4 2004/08/10 07:51:07 zagap Exp $
+#$Id: WebDAO.pm,v 1.5 2004/08/15 07:22:56 zagap Exp $
 
 package HTML::WebDAO;
 
@@ -24,7 +24,7 @@ use HTML::WebDAO::Comp::Image;
 #use HTML::WebDAO::Comp::Graph;
 our @ISA = qw();
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 
 # Preloaded methods go here.

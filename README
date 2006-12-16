@@ -1,4 +1,4 @@
-#$Id: README,v 1.4 2004/08/10 07:51:07 zagap Exp $
+#$Id: README,v 1.2 2006/10/13 12:39:08 zag Exp $
 
 WebDAO 
 ========================
@@ -14,6 +14,17 @@ To install this module type the following:
    make test
    make install
 
+ SetEnv wdEngine 
+ SetEnv wdEnginePar 
+ 
+ SetEnv wdStore
+ SetEnv wdStorePar
+ 
+ SetEnv wdSession
+ SetEnv wdSessionPar
+ 
+ SetEnv wdIndexFile
+ 
 DEPENDENCIES
 
 This module requires  Perl 5.005 or greater and libraries:

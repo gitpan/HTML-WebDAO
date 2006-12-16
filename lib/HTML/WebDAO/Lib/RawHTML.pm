@@ -1,19 +1,16 @@
-#$Id: RawHTML.pm,v 1.2 2004/03/09 20:34:27 zagap Exp $
+#$Id: RawHTML.pm,v 1.1.1.1 2006/05/09 11:49:16 zag Exp $
 
 package HTML::WebDAO::Lib::RawHTML;
 use HTML::WebDAO::Base;
-#@ISA="ucomponent";
 use base qw(HTML::WebDAO::Component);
-@Desc=("_rawhtml_element","<string>","Put string as is (for _ingeine inernal use)");
-sub Init{
-my ($self,$ref_raw_html)=@_;
-$self->_runtime("_raw_html",$ref_raw_html);
-$self->RegEvent("_info",sub{});
+attributes (_raw_html);
+sub init {
+    my ($self,$ref_raw_html)=@_;
+   _raw_html $self $ref_raw_html;
 }
-sub Fetch {
-my $self=shift;
-return [${$self->_runtime("_raw_html")}];
+sub fetch {
+  my $self=shift;
+  return ${$self->_raw_html};
 }
-sub Event{
-}
+
 1;

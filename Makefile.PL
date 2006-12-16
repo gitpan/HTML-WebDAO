@@ -2,13 +2,19 @@
 use ExtUtils::MakeMaker;
 WriteMakefile
 (
-          'PL_FILES' => {},
-          'INSTALLDIRS' => 'site',
           'NAME' => 'HTML::WebDAO',
           'VERSION_FROM' => 'lib/HTML/WebDAO.pm',
           'PREREQ_PM' => {
                            'FreezeThaw' => '0.43',
-                           'MLDBM' => '0'
-                         }
+                           'MLDBM' => '0',
+                           'XML::LibXML' => '0'
+                         },
+          'INSTALLDIRS' => 'site',
+          'EXE_FILES' => [
+                           'script/wd_cgi.pl',
+                           'script/wd_fcgi.fpl',
+                           'script/wd_shell.pl'
+                         ],
+          'PL_FILES' => {}
         )
 ;

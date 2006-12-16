@@ -1,223 +1,252 @@
-#$Id: Engine.pm,v 1.3 2004/03/09 20:34:26 zagap Exp $
+#$Id: Engine.pm,v 1.5 2006/10/27 08:59:08 zag Exp $
 
 package HTML::WebDAO::Engine;
 use Data::Dumper;
-use HTML::WebDAO::Base;
+use HTML::WebDAO::Container;
+use HTML::WebDAO::Lex;
 use base qw(HTML::WebDAO::Container);
 use Carp;
-#use strict;
-attributes qw(Par);
-sub _sysinit{
-my ($self,$ref)=@_;
-#! Setup $init_hash;
-my $my_name=shift(@{$ref});
-unshift(@{$ref},{
-	ref_engine=>$self,	#! Setup _engine refernce for childs!
-	name_obj=>"$my_name"});	#! Setup _my_name 
-#	name_obj=>"applic"});	#! Setup _my_name 
-$self->SUPER::_sysinit($ref);
-#!init _runtime variables;
-$self->_set_parent($self);
+use strict;
+__PACKAGE__->attributes qw( _session __obj __events);
 
-#hash "function" -"package"
-$self->_runtime("_obj",{});
-#hash "function" - "describtion"
-$self->_runtime("_describe",{});
-#hash "function" - "use"
-$self->_runtime("_use",{});
-#init hash of evens names  -> @Array of pointers of sub in objects
-$self->_runtime("_events",{});
+sub _sysinit {
+    my ( $self, $ref ) = @_;
+    my %hash = @$ref;
 
+    # Setup $init_hash;
+    my $my_name = $hash{id} || '';    #shift( @{$ref} );
+    unshift(
+        @{$ref},
+        {
+            ref_engine => $self,       #! Setup _engine refernce for childs!
+            name_obj   => "$my_name"
+        }
+    );                                 #! Setup _my_name
+    #Save session
+    _session $self $hash{session};
+    
+    #	name_obj=>"applic"});	#! Setup _my_name
+    $self->SUPER::_sysinit($ref);
+
+    #!init _runtime variables;
+    $self->_set_parent($self);
+
+    #hash "function" -"package"
+    $self->__obj( {} );
+
+    #init hash of evens names  -> @Array of pointers of sub in objects
+    $self->__events( {} );
 
 }
 
-sub Init{
-my ($self,$raw_html)=@_;
-#Register modules;
-sub find_desc {
-my ($pkg_name)=@_;
-foreach my $key ( sort grep {!/main::/} keys %{"$pkg_name"})
-{   
-   if ($key=~/::$/) { 
-   	find_desc($pkg_name.$key)
-	    } else {
-    	(my $prepared=$pkg_name)=~s/::$//;
-	 $self->RegistrPack($prepared) if $key=~/Desc/;
+sub init {
+    my ( $self, %opt ) = @_;
+
+    #register default clasess
+    $self->register_class( 'HTML::WebDAO::Lib::RawHTML' => '_rawhtml_element',
+    );
+
+
+    #Register by init classes
+    if ( ref( my $classes = $opt{register} ) ) {
+        $self->register_class(%$classes);
+    }
+    my $raw_html = $opt{source};
+    if ( my $lex = $opt{lexer} ) {
+        map { $_->value($self) } @{ $lex->auto };
+        my @objs = map { $_->value($self) } @{ $lex->tree };
+        $self->_add_childs(@objs);
+    }
+    else {
+
+        #Create childs from source
+        $self->_add_childs(@{ $self->_parse_html($raw_html) });
+    }
+
+}
+
+sub _get_obj_by_path {
+    my $self = shift;
+    my ( $obj_p, @path ) = @_;
+    my $id = shift @path;
+    my $res;
+    if ( my $obj = $obj_p->_get_obj_by_name($id) ) {
+        $res = scalar(@path) ? $self->_get_obj_by_path( $obj, @path ) : $obj;
+    }
+    return $res;
+}
+
+sub __restore_session_attributes {
+    my $self = shift;
+    #collect paths as index
+    my %paths;
+    foreach my $object (@_) {
+       my @collection = ($object, @{$object->_get_childs});
+        $paths{$_->__path2me} = $_ for @collection;
+    }
+    my $sess = $self->_session;
+    my $loaded = $sess->_load_attributes_by_path(keys %paths);
+    while ( my ($key, $ref) = each %$loaded) {
+        next unless exists $paths{$key};
+        $paths{$key}->_set_vars($ref)
     }
 }
-}#find_desc
-find_desc('main::');
 
-#Create childs from source
-foreach( @{$self->_parse_html($raw_html)}){
-$self->AddChild($_);
-$self->Par("hi");
-}
-#register event _sess_loaded
-$self->RegEvent($self,"_sess_loaded",\&SessionLoaded);
-}
-
-sub SessionLoaded {
-my ($self,$event_name,$par)=@_;
-#logmsgs $self q/SessionLoaded/;
-#$self->_session_loaded();
-$self->SUPER::SessionLoaded;
-}
-
-sub SetParam {
-my ($self,$par_ref)=@_;
-    my $ref;
-    my $tr;
-foreach my $key(keys %{$par_ref}){
-    next if ($par_ref->{$key} eq "");
-    my $str;
-    $str='$ref->'.(join "",map {"\{$_\}"} split (/\./,$key))."=\'".$par_ref->{$key}."\'";
-    eval $str;
-}
-$ref=$ref->{$self->MyName()} if (exists($ref->{$self->MyName()}));
-$self->_set_vars($ref);
-}
-
-#This method call from _set_vars then
-#setup unknown var (i.e. from form)
-sub _set_unknown_var{
-my ($self,$par,$val)=@_;
-for ($par) {do{
-    /sess/  && do {
-	    $self->SetSession($val);
-	    return 1;#do not inheritance SUPER
-		    }
-	    || do {
-	    $self->SUPER::_set_unknown_var($par,$val)
-		    }
-    }}
-}
-
-sub Work{
-my $self=shift;
-SendEvent $self "_begin_work";
-#logmsgs $self q/SendEvent $self "_begin_work";/;
-$self->SUPER::Work;
+sub __store_session_attributes {
+    my $self = shift;
+    #collect paths as index
+    my %paths;
+    foreach my $object (@_) {
+       my @collection = ($object, @{$object->_get_childs});
+          foreach  (@collection) {
+            my $attrs = $_->_get_vars;
+            next unless $attrs;
+            $paths{$_->__path2me} = $attrs;
+          }
+    }
+    my $sess = $self->_session;
+    $sess->_store_attributes_by_path(\%paths);
 }
 
 
-#fill $self->runtime("_events") hash event - method
+sub Work {
+    my $self = shift;
+    my $sess = shift;
+    my @path = @{ $sess->call_path };
+    ####
+#    $self->_log1( "PATH" . Dumper( \@path ) );
+    my $res = $self->_call_method( \@path, %{ $sess->Params } ) if @path;
+
+    #    $self->_log1("$res") if $res;
+    if ($res) {
+        unless ( ref($res) ) {
+            $sess->response( { data => $res } );
+            return;
+        }
+        else {
+            if ( ref($res) eq 'HASH'
+                and ( exists $res->{header} or exists $res->{data} ) )
+            {
+
+                $sess->response($res);
+                if ( my $call_back = $res->{call_back} ) {
+                    $call_back->() if ref($call_back) eq 'CODE';
+                }
+                return;
+            }
+        }
+
+    }
+
+    $sess->print_header();
+    print @{ $self->fetch($sess) };
+}
+
+#fill $self->__events hash event - method
 sub RegEvent {
-my ($self,$ref_obj,$event_name,$ref_sub)=@_;
-my $ev_hash=$self->_runtime("_events");
-$ev_hash->{$event_name}->{scalar($ref_obj)}={
-	ref_obj=>$ref_obj,
-	ref_sub=>$ref_sub} if (ref($ref_sub));
+    my ( $self, $ref_obj, $event_name, $ref_sub ) = @_;
+    my $ev_hash = $self->__events;
+    $ev_hash->{$event_name}->{ scalar($ref_obj) } = {
+        ref_obj => $ref_obj,
+        ref_sub => $ref_sub
+      }
+      if ( ref($ref_sub) );
+    return 1;
 }
 
-sub SendEvent{
-my ($self,$event_name,@Par)=@_;
-my $ev_hash=$self->_runtime("_events");
-return 0  unless (exists($ev_hash->{$event_name}));
-foreach my $ref_rec (keys %{$ev_hash->{$event_name}}) {
-    my $ref_sub=$ev_hash->{$event_name}->{$ref_rec}->{ref_sub};
-    my $ref_obj=$ev_hash->{$event_name}->{$ref_rec}->{ref_obj};
-    $ref_obj->$ref_sub($event_name,@Par);
-		}
-};
-
-sub _createObj{
-my ($self,$name_obj,$name_func,@par)=@_;
-if (my $pack=_pack4name $self $name_func){
-    my $ref_init_hash={
-		ref_engine=>$self->GetEngine(), #! Setup _engine refernce for childs!
-		name_obj=>$name_obj};		#! Setup _my_name
-    my $obj_ref=eval "$pack\-\>new(\$ref_init_hash,\@par)";
-    carp "Error in eval:  _createObj $@" if $@;
-    return $obj_ref;
+sub SendEvent {
+    my ( $self, $event_name, @Par ) = @_;
+    my $ev_hash = $self->__events;
+    unless ( exists( $ev_hash->{$event_name} ) ) {
+        _log2 $self "WARN: Event $event_name not exists.";
+        return 0;
+    }
+    foreach my $ref_rec ( keys %{ $ev_hash->{$event_name} } ) {
+        my $ref_sub = $ev_hash->{$event_name}->{$ref_rec}->{ref_sub};
+        my $ref_obj = $ev_hash->{$event_name}->{$ref_rec}->{ref_obj};
+        $ref_obj->$ref_sub( $event_name, @Par );
+    }
 }
+=head3 _createObj(<name>,<class or alias>,@parameters)
+
+create object by <class or alias>.
+
+=cut
+sub _createObj {
+    my ( $self, $name_obj, $name_func, @par ) = @_;
+    if ( my $pack = _pack4name $self $name_func ) {
+        my $ref_init_hash = {
+            ref_engine => $self->getEngine()
+            ,    #! Setup _engine refernce for childs!
+            name_obj => $name_obj
+        };    #! Setup _my_name
+        my $obj_ref =
+          $pack->isa('HTML::WebDAO::Element')
+          ? eval "'$pack'\-\>new(\$ref_init_hash,\@par)"
+          : eval "'$pack'\-\>new(\@par)";
+        carp "Error in eval:  _createObj $@" if $@;
+        return $obj_ref;
+    }
+    else { _log1 $self "Not registered alias: $name_func"; return }
 }
 
 #sub _parse_html(\@html)
 #return \@Objects
-sub _parse_html{
-my ($self,$raw_html)=@_;
-#remove special symbols
-#*tags="createObj|newObj";
-#map {~s/[\n\r]+//} @{$raw_html};
-#my $mass=[split(/<!--(?:[\s]+)?((?:createObj|newObj)(?:[\s]+)?(?:[^\s]*))(?:[\s]+)?-->/,
-my $mass=[split(/<!--(?:[\s]+)?((?:createObj|newObj)(?:[\s]+)?(?:(?:(?!-->).)*))(?:[\s]+)?-->/msg,
-			    join("",@{$raw_html}))];
-#At this section analize and generates refs
-#unshift (@mass,"createObj error('No_function_')");
-##{
-###local $/;
-##local $,;
-###$/="\n";
-##$,="\n--\n";
-##open (FH,">/tmp/ZZZ");
-##print FH @$mass;
-##close FH;
-##}
-my $ref;
-my @res;
-foreach (@$mass){
-#unless (/^(?:createObj|newObj)(?:[\s]+)?([\w]+)\((.*)\)/) {
-#<!--createObj Text1{text}("Sample")-->
-unless (/^(?:createObj|newObj)(?:[\s]+)?([\w]+)\{([\w]+)\}\((.*)\)/s) {
-$ref=$self->_createObj("none","_rawhtml_element",\$_);
-}
-    else {
-my $name_obj=$1;
-my $mod_name=$2;    
-my @par=split(/[,]/,$3);
-map {~s/["']//g} @par;#remove"
-#no strict 'subs';
-$ref=$self->_createObj($name_obj,$mod_name, eval($3));
-}
+sub _parse_html {
+    my ( $self, $raw_html ) = @_;
 
-push(@res,$ref) if ref($ref);
-}
-return \@res;
+    #Mac and DOS line endings
+    $raw_html =~ s/\r\n?/\n/g;
+    my $mass;
+    $mass = [ split( /(<WD>.*?<\/WD>)/is, $raw_html ) ];
+    my @res;
+    foreach my $text (@$mass) {
+        my @ref;
+        unless ( $text =~ /^<wd/i ) {
+            push @ref, $self->_createObj( "none", "_rawhtml_element", \$text )
+              ;    #if $text =~ /\s+/;
+        }
+        else {
+            my $lex = new HTML::WebDAO::Lex:: engine => $self;
+            @ref = $lex->lex_data($text);    #clean 'empty'
+
+          #        _log3 $self "LEXED:".Dumper([ map {"$_"} @ref])."from $text";
+
+        }
+        next unless @ref;
+        push @res, @ref;
+    }
+    return \@res;
 }
 
 #Get package for functions name
 sub _pack4name {
-my ($self,$name)=@_;
-my $ref=_runtime $self "_obj";
-return $$ref{$name} if (exists $$ref{$name});
+    my ( $self, $name ) = @_;
+    my $ref = $self->__obj;
+    return $$ref{$name} if ( exists $$ref{$name} );
 }
 
-sub _list_func{
-my $self=shift;
-return (sort keys %{_runtime $self "_obj"});
-}
-
-sub GetPackFunc {
-my $self=shift;
-my $pack_name=shift;
-my @func;
-local *sym=eval"\$${pack_name}::{Desc}" if defined eval"\$${pack_name}::{Desc}";
-return (defined @sym) ? eval "\@${pack_name}::Desc":();
-#else {return  0;}
-}
-
-sub RegistrPack {
-my ($self,$pack_name)=@_;
-my @arr;
-my ($i,$use,$describe,$name);
-my ($_obj,
-    $_describe,
-    $_use
-    )=(
-    $self->_runtime("_obj"),
-    $self->_runtime("_describe"),
-    $self->_runtime("_use")
-    );
-if (@arr=$self->GetPackFunc($pack_name)) {
-    for ($i=0;$i < @arr/3;++$i){
-	$name=$arr[$i*3];
-	$use=$arr[$i*3+1];
-	$describe=$arr[$i*3+2];
-	$$_obj{$name}=$pack_name;
-	$$_describe{$name}=$describe;
-	$$_use{$name}=$use;
-	    }
+sub register_class {
+    my ( $self, %register ) = @_;
+    my $_obj = $self->__obj;
+    while ( my ( $class, $alias ) = each %register ) {
+        eval " use $class";
+        if ($@) {
+            _log1 $self "Error register class :$class with $@ ";
+            return "Error register class :$class with $@ ";
+            next;
+        }
+        $$_obj{$alias} = $class;
     }
+    return;
+}
+
+sub _destroy {
+    my $self = shift;
+    $self->__store_session_attributes(@{$self->_get_childs});
+    $self->SUPER::_destroy;
+    $self->_session(undef);
+    $self->__obj(undef);
+    $self->__events(undef);
 }
 1;

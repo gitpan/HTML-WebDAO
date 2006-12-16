@@ -1,4 +1,4 @@
-#$Id: Sessiong.pm,v 1.2 2004/03/09 20:34:26 zagap Exp $
+#$Id: Sessiong.pm,v 1.1.1.1 2006/05/09 11:49:16 zag Exp $
 
 package HTML::WebDAO::Sessiong;
 use CGI;

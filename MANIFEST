@@ -1,6 +1,7 @@
 Build.PL
 Changes
 contrib/TestWDAO.pm
+contrib/tservices.pl
 lib/Apache/Directives2.pm
 lib/Apache/WebDAO.pm
 lib/HTML/WebDAO.pm

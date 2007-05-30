@@ -1,6 +1,6 @@
 ---
 name: HTML-WebDAO
-version: 0.76
+version: 0.77
 author:
   - 'Zahatski Aliaksandr, E<lt>zag@cpan.orgE<gt>'
 abstract: Perl extension for create complex web application
@@ -18,7 +18,7 @@ provides:
     file: lib/Apache/WebDAO.pm
   HTML::WebDAO:
     file: lib/HTML/WebDAO.pm
-    version: 0.76
+    version: 0.77
   HTML::WebDAO::Base:
     file: lib/HTML/WebDAO/Base.pm
   HTML::WebDAO::CVapache2:
@@ -71,7 +71,7 @@ provides:
     file: lib/HTML/WebDAO/Store/MLDBM.pm
   HTML::WebDAO::Store::Storable:
     file: lib/HTML/WebDAO/Store/Storable.pm
-generated_by: Module::Build version 0.2806
+generated_by: Module::Build version 0.2808
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
   version: 1.2

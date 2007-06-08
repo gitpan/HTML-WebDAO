@@ -33,7 +33,6 @@ lib/HTML/WebDAO/Store/MLDBM.pm
 lib/HTML/WebDAO/Store/Storable.pm
 Makefile.PL
 MANIFEST
-META.yml
 README
 script/wd_cgi.pl
 script/wd_fcgi.fpl
@@ -41,3 +40,4 @@ script/wd_shell.pl
 t/1.t
 t/11.t
 t/HTML::WebDAO::Lexer::Lmethod.t
+META.yml

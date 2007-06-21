@@ -1,4 +1,4 @@
-#$Id: CVcgi.pm,v 1.2 2006/09/11 12:04:28 zag Exp $
+#$Id: CVcgi.pm 100 2007-06-20 13:20:09Z zag $
 
 package HTML::WebDAO::CVcgi;
 use HTML::WebDAO::Base;
@@ -11,7 +11,8 @@ attributes qw (Cgi_obj);
 
 sub _init {
     my $self = shift;
-    my $cgi = new CGI::;
+    my $cgi_obj = shift;
+    my $cgi = $cgi_obj || new CGI::;
     Cgi_obj $self  $cgi;
     return 1;
 }

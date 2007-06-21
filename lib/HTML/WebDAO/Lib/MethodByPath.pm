@@ -1,4 +1,4 @@
-#$Id: RawHTML.pm,v 1.1.1.1 2006/05/09 11:49:16 zag Exp $
+#$Id: MethodByPath.pm 97 2007-06-17 13:18:56Z zag $
 
 package HTML::WebDAO::Lib::MethodByPath;
 use HTML::WebDAO::Base;

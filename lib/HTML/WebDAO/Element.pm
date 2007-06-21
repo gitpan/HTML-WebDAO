@@ -1,4 +1,4 @@
-#$Id: Element.pm,v 1.3 2006/10/27 08:59:08 zag Exp $
+#$Id: Element.pm 97 2007-06-17 13:18:56Z zag $
 
 package HTML::WebDAO::Element;
 use Data::Dumper;

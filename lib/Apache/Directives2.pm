@@ -1,4 +1,4 @@
-#$Id: Directives2.pm,v 1.2 2006/09/19 10:48:28 zag Exp $
+#$Id: Directives2.pm 97 2007-06-17 13:18:56Z zag $
 
 package Apache::Directives2;
 

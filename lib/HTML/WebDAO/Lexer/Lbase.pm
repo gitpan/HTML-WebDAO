@@ -1,4 +1,4 @@
-#$Id: Lbase.pm,v 1.4 2006/10/27 08:59:08 zag Exp $
+#$Id: Lbase.pm 97 2007-06-17 13:18:56Z zag $
 
 package HTML::WebDAO::Lexer::Lbase;
 use HTML::WebDAO::Base;

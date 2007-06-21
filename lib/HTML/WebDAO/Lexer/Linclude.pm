@@ -1,4 +1,4 @@
-#$Id: Linclude.pm,v 1.4 2006/10/27 08:59:08 zag Exp $
+#$Id: Linclude.pm 99 2007-06-20 10:57:10Z zag $
 
 package HTML::WebDAO::Lexer::Linclude;
 use HTML::WebDAO::Lexer::Lbase;
@@ -20,6 +20,7 @@ sub Init {
         return;
     }
     open FH, "<$file" or die $!;
+#    open FH, "<:utf8","$file" or die $!;
     my $str;
     {
         local $/;
@@ -38,38 +39,6 @@ sub Init {
 sub get_self {
     my $self = shift;
     return @{$self->ret_obj}
-}
-
-sub get_values {
-    my $self   = shift;
-    my $par    = $self->all;
-    my ($file) = $par->{file};
-    unless ($file) {
-        logmsgs $self "Syntax error: include - not initialized file attribute";
-        return;
-    }
-    unless ( -e $file ) {
-        logmsgs $self "File $file not found";
-        return;
-    }
-    open FH, "<$file" or die $!;
-    my $str;
-    {
-        local $/;
-        $/   = undef;
-        $str = <FH>
-    }
-    close FH;
-
-    unless ( my $eng = $self->engine ) { return \$par }
-    else {
-        my @objects = @{ $eng->_parse_html($str) };
-
-        #        _log1 $self  "INCLUDE DATA: $str";
-        #        _log1 $self "OBJECTS:". join ","=> @objects;
-        return @objects;
-    }
-
 }
 
 1;

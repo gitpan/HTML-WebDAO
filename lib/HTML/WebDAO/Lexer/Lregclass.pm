@@ -1,4 +1,4 @@
-#$Id: Lregclass.pm,v 1.2 2006/09/19 10:05:25 zag Exp $
+#$Id: Lregclass.pm 97 2007-06-17 13:18:56Z zag $
 
 package HTML::WebDAO::Lexer::Lregclass;
 use HTML::WebDAO::Lexer::Lbase;

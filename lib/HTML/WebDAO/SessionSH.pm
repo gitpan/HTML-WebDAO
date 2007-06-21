@@ -1,4 +1,4 @@
-#$Id: SessionSH.pm,v 1.1.1.1 2006/05/09 11:49:16 zag Exp $
+#$Id: SessionSH.pm 97 2007-06-17 13:18:56Z zag $
 
 package HTML::WebDAO::SessionSH;
 use strict;

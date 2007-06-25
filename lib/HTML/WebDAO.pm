@@ -1,4 +1,4 @@
-#$Id: WebDAO.pm 100 2007-06-20 13:20:09Z zag $
+#$Id: WebDAO.pm 106 2007-06-25 10:35:07Z zag $
 
 package HTML::WebDAO;
 
@@ -15,7 +15,7 @@ use HTML::WebDAO::Sessiong;
 use HTML::WebDAO::Lib::RawHTML;
 our @ISA = qw();
 
-our $VERSION = '0.79';
+our $VERSION = '0.80';
 
 
 
@@ -48,7 +48,7 @@ Zahatski Aliaksandr, E<lt>zag@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2003-2006 by Zahatski Aliaksandr
+Copyright 2003-2007 by Zahatski Aliaksandr
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

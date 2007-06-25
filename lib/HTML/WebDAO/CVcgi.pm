@@ -1,4 +1,4 @@
-#$Id: CVcgi.pm 100 2007-06-20 13:20:09Z zag $
+#$Id: CVcgi.pm 104 2007-06-25 05:57:38Z zag $
 
 package HTML::WebDAO::CVcgi;
 use HTML::WebDAO::Base;
@@ -6,8 +6,8 @@ use CGI;
 use Data::Dumper;
 use base qw( HTML::WebDAO::Base );
 use strict;
-#__PACKAGE__->
-attributes qw (Cgi_obj);
+
+__PACKAGE__->attributes qw (Cgi_obj);
 
 sub _init {
     my $self = shift;
@@ -32,6 +32,10 @@ sub response {
     print $res->{data};
 }
 
+sub print {
+    my $self = shift;
+    print @_;
+}
 =head2 referer
 
 Get current referer

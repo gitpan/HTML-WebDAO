@@ -1,4 +1,4 @@
-#$Id: Container.pm 97 2007-06-17 13:18:56Z zag $
+#$Id: Container.pm 102 2007-06-25 05:56:05Z zag $
 
 package HTML::WebDAO::Container;
 use HTML::WebDAO::Element;
@@ -130,6 +130,7 @@ sub _destroy {
     for my $a ( @{ $self->__childs } ) {
         $a->_destroy;
     }
+    $self->__childs([]);
     $self->SUPER::_destroy;
 }
 

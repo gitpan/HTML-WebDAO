@@ -1,4 +1,4 @@
-#$Id: Lregclass.pm 97 2007-06-17 13:18:56Z zag $
+#$Id: Lregclass.pm 106 2007-06-25 10:35:07Z zag $
 
 package HTML::WebDAO::Lexer::Lregclass;
 use HTML::WebDAO::Lexer::Lbase;
@@ -32,23 +32,6 @@ sub value {
         _log1 $self $error_str;
     }
 
-}
-
-sub get_values {
-    my $self = shift;
-    my $par  = $self->all;
-    my ( $class, $alias ) = @$par{qw/class alias/};
-    unless ( $class && $alias ) {
-        logmsgs $self "Syntax error: regclass - not initialized class or alias";
-        return;
-    }
-    unless ( my $eng = $self->engine ) { return \$par }
-
-    else {
-        if ( my $error_str = $eng->register_class( $class => $alias ) ) {
-            logmsgs $self $error_str;
-        }
-    }
 }
 
 1;

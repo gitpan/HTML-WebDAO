@@ -1,4 +1,4 @@
-#$Id: Element.pm 97 2007-06-17 13:18:56Z zag $
+#$Id: Element.pm 106 2007-06-25 10:35:07Z zag $
 
 package HTML::WebDAO::Element;
 use Data::Dumper;
@@ -42,13 +42,13 @@ sub _sysinit {
     $self->__attribute_names($ref_names_hash);
 
     #init array of _format sub's references
-    $self->_format_subs(
-        [
-            sub { $self->pre_format(@_) },
-            sub { $self->format(@_) },
-            sub { $self->post_format(@_) },
-        ]
-    );
+    #    $self->_format_subs(
+    #        [
+    #            sub { $self->pre_format(@_) },
+    #            sub { $self->format(@_) },
+    #            sub { $self->post_format(@_) },
+    #        ]
+    #    );
 
 }
 
@@ -151,8 +151,19 @@ sub pre_format {
     return [];
 }
 
-
 sub _format {
+    my $self = shift;
+    my @res;
+    push( @res, @{ $self->pre_format(@_) } );#for compat
+    if ( my $result = $self->fetch(@_) ) {
+        push @res, ( ref($result) eq 'ARRAY' ? @{$result} : $result );
+    }
+    push( @res, @{ $self->post_format(@_) } );#for compat
+
+    \@res;
+}
+
+sub _format1 {
     my $self = shift;
     my @res;
     my $format_subs = $self->_format_subs();
@@ -182,6 +193,7 @@ sub _destroy {
     my $self = shift;
     $self->__parent(undef);
     $self->__engine(undef);
+    $self->_format_subs(undef);
 }
 
 sub _set_vars {

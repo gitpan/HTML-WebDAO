@@ -1,11 +1,11 @@
-#$Id: Lbase.pm 97 2007-06-17 13:18:56Z zag $
+#$Id: Lbase.pm 106 2007-06-25 10:35:07Z zag $
 
 package HTML::WebDAO::Lexer::Lbase;
 use HTML::WebDAO::Base;
 use Data::Dumper;
 use base qw( HTML::WebDAO::Base );
 use strict;
-__PACKAGE__->attributes qw/ all engine /;
+__PACKAGE__->attributes qw/ all  /;
 
 sub _init() {
     my $self = shift;

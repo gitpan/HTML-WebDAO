@@ -1,4 +1,4 @@
-#$Id: Component.pm 97 2007-06-17 13:18:56Z zag $
+#$Id: Component.pm 112 2007-07-03 20:44:28Z zag $
 
 package HTML::WebDAO::Component;
 use HTML::WebDAO::Base;
@@ -24,5 +24,9 @@ sub url_method {
     );
     return $res;
 
+}
+sub response {
+    my $self = shift;
+    return $self->getEngine->response;
 }
 1;

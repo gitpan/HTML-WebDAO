@@ -1,4 +1,4 @@
-#$Id: Engine.pm 97 2007-06-17 13:18:56Z zag $
+#$Id: Engine.pm 113 2007-07-03 20:46:10Z zag $
 
 package HTML::WebDAO::Engine;
 use Data::Dumper;
@@ -113,6 +113,11 @@ sub __store_session_attributes {
     $sess->_store_attributes_by_path( \%paths );
 }
 
+sub response {
+    my $self = shift;
+    return $self->_session->response_obj
+}
+
 sub Work {
     my $self = shift;
     my $sess = shift;
@@ -121,30 +126,48 @@ sub Work {
     #    _log1 $self "WOKR: '@path'".Dumper(\@path);
     ####
     my $res = $self->_call_method( \@path, %{ $sess->Params } ) if @path;
+    
+    #if not defined $res
 
-    #    $self->_log1("$res") if $res;
-    if ($res) {
-        unless ( ref($res) ) {
-            $sess->response( { data => $res } );
-            return;
-        }
-        else {
-            if ( ref($res) eq 'HASH'
-                and ( exists $res->{header} or exists $res->{data} ) )
-            {
-
-                $sess->response($res);
-                if ( my $call_back = $res->{call_back} ) {
-                    $call_back->() if ref($call_back) eq 'CODE';
-                }
-                return;
-            }
-        }
-
+    #first prepare response object
+    my $response = $sess->response_obj;
+    unless ( $res ) {
+#        $response->print_header();
+        $response->print($_) for @{ $self->fetch($sess) };
+        $response->flush;
+        return ;#end
     }
 
-    $sess->print_header();
-    $sess->print($_) for @{ $self->fetch($sess) };
+    if ( ref($res) eq 'HASH'
+        and ( exists $res->{header} or exists $res->{data} ) )
+    {
+
+        #set headers
+        if ( exists $res->{header} ) {
+            while ( my ( $key, $val ) = each %{ $res->{header} } ) {
+                $response->set_header( $key, $val );
+            }
+        }
+        if ( my $call_back = $res->{call_back} ) {
+            $response->set_callback($call_back)
+              if ref($call_back) eq 'CODE';
+        }
+        $response->print($res->{data}) if exists $res->{data};
+        $res = $response;
+    }
+    if ( ref($res) eq 'HTML::WebDAO::Response' ) {
+        #we gor response !
+        $res->flush;
+        return;
+    }
+    unless ( ref($res) ) {
+        $response->print($res);
+        $response->flush();
+        return;
+    }
+    _log1 $self "Unknow response : $res";
+        $response->print($_) for @{ $self->fetch($sess) };
+        $response->flush;
 }
 
 #fill $self->__events hash event - method
@@ -201,7 +224,7 @@ sub _createObj {
 #return \@Objects
 sub _parse_html {
     my ( $self, $raw_html ) = @_;
-
+    return [] unless $raw_html;
     #Mac and DOS line endings
     $raw_html =~ s/\r\n?/\n/g;
     my $mass;

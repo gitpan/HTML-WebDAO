@@ -1,4 +1,4 @@
-#$Id: MLDBM.pm 101 2007-06-20 17:49:48Z zag $
+#$Id: MLDBM.pm 114 2007-07-03 20:49:10Z zag $
 
 package HTML::WebDAO::Store::MLDBM;
 use File::Path;
@@ -18,8 +18,13 @@ sub init {
     my $dir = $pars{path};
     $dir .= "/" unless $dir =~ m%/$%;
     unless ( -d $dir ) {
-        _log4 $self "create dir for store";
+    eval {
         mkpath( $dir, 0 );
+        };
+    if ($@) {   
+        _log1 $self "error mkdir".$@
+    }
+
     }
     $self->_dir($dir);
     my %hash;

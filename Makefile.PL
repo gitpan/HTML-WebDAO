@@ -5,6 +5,8 @@ WriteMakefile
           'NAME' => 'HTML::WebDAO',
           'VERSION_FROM' => 'lib/HTML/WebDAO.pm',
           'PREREQ_PM' => {
+                           'DateTime' => '0.37',
+                           'DateTime::Format::HTTP' => '0.37',
                            'FreezeThaw' => '0.43',
                            'MLDBM' => '0',
                            'XML::LibXML' => '0'

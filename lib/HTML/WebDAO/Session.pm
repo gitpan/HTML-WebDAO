@@ -1,4 +1,4 @@
-#$Id: Session.pm 112 2007-07-03 20:44:28Z zag $
+#$Id: Session.pm 138 2007-08-15 20:55:24Z zag $
 
 package HTML::WebDAO::Session;
 use HTML::WebDAO::Base;
@@ -65,9 +65,16 @@ sub get_id {
     return rand(100);
 }
 
+=head2 call_path [$url]
+
+Return ref to array of element from $url or from CGI ENV
+
+=cut
 sub call_path {
     my $self = shift;
-    $self->Cgi_env->{path_info_elments};
+    my $url = shift || return $self->Cgi_env->{path_info_elments};
+    return  [ grep { defined $_ } split( /\//, $url) ];
+
 }
 
 sub _load_attributes_by_path {

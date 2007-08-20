@@ -1,6 +1,6 @@
 ---
 name: HTML-WebDAO
-version: 0.81
+version: 0.82
 author:
   - 'Zahatski Aliaksandr, E<lt>zag@cpan.orgE<gt>'
 abstract: Perl extension for create complex web application
@@ -20,7 +20,7 @@ provides:
     file: lib/Apache/WebDAO.pm
   HTML::WebDAO:
     file: lib/HTML/WebDAO.pm
-    version: 0.81
+    version: 0.82
   HTML::WebDAO::Base:
     file: lib/HTML/WebDAO/Base.pm
   HTML::WebDAO::CVapache2:

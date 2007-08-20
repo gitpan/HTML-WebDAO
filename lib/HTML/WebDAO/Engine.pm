@@ -1,4 +1,4 @@
-#$Id: Engine.pm 113 2007-07-03 20:46:10Z zag $
+#$Id: Engine.pm 138 2007-08-15 20:55:24Z zag $
 
 package HTML::WebDAO::Engine;
 use Data::Dumper;
@@ -134,6 +134,7 @@ sub Work {
     unless ( $res ) {
 #        $response->print_header();
         $response->print($_) for @{ $self->fetch($sess) };
+#        $response->error404("Url not found:".join "/",@path);
         $response->flush;
         return ;#end
     }

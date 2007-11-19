@@ -1,4 +1,4 @@
-#$Id: Element.pm 106 2007-06-25 10:35:07Z zag $
+#$Id: Element.pm 216 2007-11-13 08:48:37Z zag $
 
 package HTML::WebDAO::Element;
 use Data::Dumper;
@@ -6,7 +6,7 @@ use HTML::WebDAO::Base;
 use base qw/ HTML::WebDAO::Base/;
 use strict 'vars';
 __PACKAGE__->attributes
-  qw/ _format_subs __attribute_names __my_name __parent __path2me  __engine/;
+  qw/ _format_subs __attribute_names __my_name __parent __path2me  __engine  __extra_path /;
 
 sub _init {
     my $self = shift;
@@ -118,7 +118,10 @@ sub _set_path2me {
     my $parent = $self->__parent;
     if ( $self != $parent ) {
         ( my $parents_path = $parent->__path2me ) ||= "";
-        my $my_path = $parents_path . "/" . $self->__my_name;
+        my $extr = $parent->__extra_path;
+        $extr = [] unless defined $extr;
+        $extr = [$extr] unless ( ref($extr) eq 'ARRAY' );
+        my $my_path = join "/", $parents_path, @$extr, $self->__my_name;
         $self->__path2me($my_path);
     }
     else {
@@ -154,27 +157,13 @@ sub pre_format {
 sub _format {
     my $self = shift;
     my @res;
-    push( @res, @{ $self->pre_format(@_) } );#for compat
+    push( @res, @{ $self->pre_format(@_) } );    #for compat
     if ( my $result = $self->fetch(@_) ) {
         push @res, ( ref($result) eq 'ARRAY' ? @{$result} : $result );
     }
-    push( @res, @{ $self->post_format(@_) } );#for compat
+    push( @res, @{ $self->post_format(@_) } );    #for compat
 
     \@res;
-}
-
-sub _format1 {
-    my $self = shift;
-    my @res;
-    my $format_subs = $self->_format_subs();
-    push( @res, @{ $format_subs->[0]->() } );
-    if ( my $result = $self->fetch(@_) ) {
-        push @res,
-          map { $format_subs->[1]->($_) }
-          ( ref($result) eq 'ARRAY' ? @{$result} : $result );
-    }
-    push( @res, @{ $format_subs->[2]->() } );
-    return \@res;
 }
 
 sub format {
@@ -211,4 +200,14 @@ sub _set_vars {
     }
 }
 
+=head2 __get_objects_by_path [path], $session
+
+Check if exist method in $path and return $self or undef
+
+=cut
+
+sub __get_objects_by_path {
+    my $self = shift;
+    return;
+}
 1;

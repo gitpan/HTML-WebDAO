@@ -1,4 +1,4 @@
-#$Id: Engine.pm 138 2007-08-15 20:55:24Z zag $
+#$Id: Engine.pm 212 2007-11-02 09:32:29Z zag $
 
 package HTML::WebDAO::Engine;
 use Data::Dumper;
@@ -115,7 +115,143 @@ sub __store_session_attributes {
 
 sub response {
     my $self = shift;
-    return $self->_session->response_obj
+    return $self->_session->response_obj;
+}
+
+=head2 resolve_path $session , ( $url or \@path )
+
+Resolve path, find object and call method
+Can return:
+
+    undef - not found path or object not have method
+    $object_ref - if object return $self (????)
+    HTML::WebDAO::Response - objects
+
+    
+
+=cut
+
+sub resolve_path {
+    my $self = shift;
+    my $sess = shift;
+    my $url  = shift;
+    my @path = ();
+    if ( ref($url) eq 'ARRAY' ) {
+        @path = @$url;
+    }
+    else {
+        @path = @{ $sess->call_path($url) };
+    }
+    my $result;
+
+    #return $self for / pathes
+    return $self unless @path;
+
+    #try to get object by path
+
+    if ( my $object = $self->_get_object_by_path( \@path, $sess ) ) {
+
+        #if object have index_x then stop traverse and call them
+        my $method = ( shift @path ) || 'index_x';
+
+        #check if $object have method
+        if ( UNIVERSAL::can( $object, $method ) ) {
+
+            #Ok have method
+            #check if path have more elements
+            my %args = %{ $sess->Params };
+            if ( @path ) {
+
+                #add  special variable
+                $args{__extra_path__} = \@path;
+            }
+
+            #call method
+            $result = $object->$method(%args);
+            return unless defined $result; #return undef if empty result 
+
+            #if object return $self ?
+            return $result if $object eq $result;    #return then
+                  #if method return non response object
+                  #then create them
+            unless ( UNIVERSAL::isa( $result, 'HTML::WebDAO::Response' ) ) {
+                my $response = $self->response;
+                for ($response) {
+
+                    #set default format : html
+                    html $_= $result;
+                }
+                $result = $response;
+            }
+        }
+        else {
+
+           #don't have method
+           #error404 - not found
+           #            $result = $self->response->error404("Not Found : $url");
+        }
+    }
+    else {
+
+        #not found objects by path !
+        #        $result = $self->response->error404("Not Found : $url");
+    }
+    return $result;
+}
+
+sub execute {
+    my $self = shift;
+    my $sess = shift;
+    my $url  = shift;
+    my @path = grep { $_ ne '' } @{ $sess->call_path($url) };
+    my $ans  = $self->resolve_path( $sess, \@path );
+
+    #got reference
+    #unless defined then return not found
+    unless ($ans) {
+        my $response = $sess->response_obj;
+        $response->error404( "Url not found:" . join "/", @path );
+        $response->flush;
+        return;    #end
+    }
+    unless ( ref $ans ) {
+        _log1 $self "got non referense answer $ans";
+        my $response = $sess->response_obj;
+        $response->error404(
+            "Unknown response path: " . join( "/", @path ) . " ans: $ans" );
+        $response->flush;
+        return;    #end
+    }
+
+    #check referense or not
+    if ( UNIVERSAL::isa( $ans, 'HTML::WebDAO::Response' ) ) {
+        my $res = $ans->html;
+        $ans->print( ref($res) eq 'CODE' ? $res->() : $res );
+        $ans->flush;
+        return;    #end
+    }
+    elsif ( UNIVERSAL::isa( $ans, 'HTML::WebDAO::Element' ) ) {
+
+        #got Element object
+        #do walk over objects
+        my $response = $sess->response_obj;
+        $response->print($_) for @{ $self->fetch($sess) };
+        $response->flush;
+        return;    #end
+    }
+    else {
+
+        #not reference or not definde
+        _log1 $self "Not supported response object. path: "
+          . join( "/", @path )
+          . " ans: $ans";
+        my $response = $sess->response_obj;
+        $response->error404(
+            "Unknown response path: " . join( "/", @path ) . " ans: $ans" );
+        $response->flush;
+        return;    #end
+
+    }
 }
 
 sub Work {
@@ -126,17 +262,19 @@ sub Work {
     #    _log1 $self "WOKR: '@path'".Dumper(\@path);
     ####
     my $res = $self->_call_method( \@path, %{ $sess->Params } ) if @path;
-    
+
     #if not defined $res
 
     #first prepare response object
     my $response = $sess->response_obj;
-    unless ( $res ) {
-#        $response->print_header();
+    unless ($res) {
+
+        #        $response->print_header();
         $response->print($_) for @{ $self->fetch($sess) };
-#        $response->error404("Url not found:".join "/",@path);
+
+        #        $response->error404("Url not found:".join "/",@path);
         $response->flush;
-        return ;#end
+        return;    #end
     }
 
     if ( ref($res) eq 'HASH'
@@ -153,10 +291,11 @@ sub Work {
             $response->set_callback($call_back)
               if ref($call_back) eq 'CODE';
         }
-        $response->print($res->{data}) if exists $res->{data};
+        $response->print( $res->{data} ) if exists $res->{data};
         $res = $response;
     }
-    if ( ref($res) eq 'HTML::WebDAO::Response' ) {
+    if ( UNIVERSAL::isa( $res, 'HTML::WebDAO::Response' ) ) {
+
         #we gor response !
         $res->flush;
         return;
@@ -166,9 +305,9 @@ sub Work {
         $response->flush();
         return;
     }
-    _log1 $self "Unknow response : $res";
-        $response->print($_) for @{ $self->fetch($sess) };
-        $response->flush;
+    _log1 $self "Unknown response : $res";
+    $response->print($_) for @{ $self->fetch($sess) };
+    $response->flush;
 }
 
 #fill $self->__events hash event - method
@@ -226,6 +365,7 @@ sub _createObj {
 sub _parse_html {
     my ( $self, $raw_html ) = @_;
     return [] unless $raw_html;
+
     #Mac and DOS line endings
     $raw_html =~ s/\r\n?/\n/g;
     my $mass;
@@ -261,12 +401,22 @@ sub register_class {
     my ( $self, %register ) = @_;
     my $_obj = $self->__obj;
     while ( my ( $class, $alias ) = each %register ) {
-        eval " use $class";
-        if ($@) {
-            _log1 $self "Error register class :$class with $@ ";
-            return "Error register class :$class with $@ ";
-            next;
+
+        #check non loaded mods
+        my ( $main, $module ) = $class =~ m/(.*\:\:)?(\S+)$/;
+        $main ||= 'main::';
+        $module .= '::';
+        no strict 'refs';
+        unless ( exists $$main{$module} ) {
+            _log1 $self "Try use $class";
+            eval "use $class";
+            if ($@) {
+                _log1 $self "Error register class :$class with $@ ";
+                return "Error register class :$class with $@ ";
+                next;
+            }
         }
+        use strict 'refs';
         $$_obj{$alias} = $class;
     }
     return;

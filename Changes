@@ -1,4 +1,14 @@
 Revision history for Perl extension HTML::WebDAO.
+0.84
+    - adopt Lexer::Lmethod to use _get_object_by_path
+    - handle __extra_path attribute
+    - check loaded mods
+    - add resolve_path method
+    - add html context to response class
+    - add _get_object_by_path methods to Container, Element
+0.83
+    - clean deprecated code
+    - add set_absolute_url (Session.pm)
 0.82
     - add error404 response method
     - call_path parse custom url (Session)
@@ -37,4 +47,4 @@ Revision history for Perl extension HTML::WebDAO.
 	- original version; created by h2xs 1.22
 	- import into sf.net cvs
 
-#$Id: Changes,v 1.1.1.1 2006/05/09 11:49:16 zag Exp $
+#$Id: Changes 225 2007-11-19 19:10:16Z zag $

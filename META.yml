@@ -1,6 +1,6 @@
 ---
 name: HTML-WebDAO
-version: 0.84
+version: 0.85
 author:
   - 'Zahatski Aliaksandr, E<lt>zag@cpan.orgE<gt>'
 abstract: Perl extension for create complex web application
@@ -10,7 +10,10 @@ resources:
 requires:
   DateTime: 0.37
   DateTime::Format::HTTP: 0.37
+  Encode: 0
+  FCGI: 0.67
   FreezeThaw: 0.43
+  Getopt::Long: 2.35
   MLDBM: 0
   XML::LibXML: 0
 provides:
@@ -20,7 +23,7 @@ provides:
     file: lib/Apache/WebDAO.pm
   HTML::WebDAO:
     file: lib/HTML/WebDAO.pm
-    version: 0.84
+    version: 0.85
   HTML::WebDAO::Base:
     file: lib/HTML/WebDAO/Base.pm
   HTML::WebDAO::CVapache2:
@@ -37,6 +40,9 @@ provides:
     file: lib/HTML/WebDAO/Element.pm
   HTML::WebDAO::Engine:
     file: lib/HTML/WebDAO/Engine.pm
+  HTML::WebDAO::FCGI::ProcManager:
+    file: lib/HTML/WebDAO/FCGI/ProcManager.pm
+    version: 0.17
   HTML::WebDAO::Lex:
     file: lib/HTML/WebDAO/Lex.pm
   HTML::WebDAO::Lexer::Lbase:

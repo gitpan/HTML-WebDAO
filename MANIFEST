@@ -15,6 +15,7 @@ lib/HTML/WebDAO/CVapache2.pm
 lib/HTML/WebDAO/CVcgi.pm
 lib/HTML/WebDAO/Element.pm
 lib/HTML/WebDAO/Engine.pm
+lib/HTML/WebDAO/FCGI/ProcManager.pm
 lib/HTML/WebDAO/Lex.pm
 lib/HTML/WebDAO/Lexer/Lbase.pm
 lib/HTML/WebDAO/Lexer/Linclude.pm

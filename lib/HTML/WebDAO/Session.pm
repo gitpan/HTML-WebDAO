@@ -1,4 +1,4 @@
-#$Id: Session.pm 212 2007-11-02 09:32:29Z zag $
+#$Id: Session.pm 251 2008-03-31 16:24:58Z zag $
 
 package HTML::WebDAO::Session;
 use HTML::WebDAO::Base;
@@ -43,7 +43,8 @@ sub Init {
             file              => "",
             base_url     => $self->Cgi_obj->url( -base => 1 ),  #http://base.com
             query_string => $self->Cgi_obj->query_string,
-            referer      => $self->Cgi_obj->referer()
+            referer      => $self->Cgi_obj->referer(),
+            accept       => { map { $_ => $self->Cgi_obj->Accept( $_) } $self->Cgi_obj->Accept}
         }
     );
 

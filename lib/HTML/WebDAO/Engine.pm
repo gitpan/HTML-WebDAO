@@ -1,4 +1,4 @@
-#$Id: Engine.pm 212 2007-11-02 09:32:29Z zag $
+#$Id: Engine.pm 251 2008-03-31 16:24:58Z zag $
 
 package HTML::WebDAO::Engine;
 use Data::Dumper;
@@ -225,6 +225,10 @@ sub execute {
 
     #check referense or not
     if ( UNIVERSAL::isa( $ans, 'HTML::WebDAO::Response' ) ) {
+        
+        $ans->_print_dep_on_context($sess) unless $ans->_is_file_send;
+        $ans->flush;
+        return;
         my $res = $ans->html;
         $ans->print( ref($res) eq 'CODE' ? $res->() : $res );
         $ans->flush;

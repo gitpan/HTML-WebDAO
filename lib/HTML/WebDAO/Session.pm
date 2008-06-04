@@ -1,4 +1,4 @@
-#$Id: Session.pm 251 2008-03-31 16:24:58Z zag $
+#$Id: Session.pm 281 2008-06-04 12:44:05Z zag $
 
 package HTML::WebDAO::Session;
 use HTML::WebDAO::Base;
@@ -28,23 +28,30 @@ sub Init {
     U_id $self undef;
     Cgi_obj $self $args{cv}
       || new HTML::WebDAO::CVcgi::;    #create default controller
+    my $cv = $self->Cgi_obj;           # Store Cgi_obj in local var
                                        #create response object
     $self->_response_obj(
         new HTML::WebDAO::Response::
           session => $self,
-        cv => $self->Cgi_obj
+        cv => $cv
     );
     _store_obj $self ( $args{store} || new HTML::WebDAO::Store::Abstract:: );
+
+    #workaround for CGI.pm: http://rt.cpan.org/Ticket/Display.html?id=36435
+    my %accept = ();
+    if ( $cv->http('accept') ) {
+        map { $_ => $cv->Accept($_) } $cv->Accept();
+    }
     Cgi_env $self (
         {
-            url => $self->Cgi_obj->url( -base => 1 ),    #http://eng.zag
-            path_info => $self->Cgi_obj->url( -absolute => 1, -path_info => 1 ),
+            url => $cv->url( -base => 1 ),    #http://eng.zag
+            path_info         => $cv->url( -absolute => 1, -path_info => 1 ),
             path_info_elments => [],
             file              => "",
-            base_url     => $self->Cgi_obj->url( -base => 1 ),  #http://base.com
-            query_string => $self->Cgi_obj->query_string,
-            referer      => $self->Cgi_obj->referer(),
-            accept       => { map { $_ => $self->Cgi_obj->Accept( $_) } $self->Cgi_obj->Accept}
+            base_url     => $cv->url( -base => 1 ),    #http://base.com
+            query_string => $cv->query_string,
+            referer      => $cv->referer(),
+            accept       => \%accept
         }
     );
 
@@ -88,11 +95,11 @@ Set flag for build absolute pathes. Return previus value.
 =cut
 
 sub set_absolute_url {
-    my $self = shift;
-    my $value = shift;
+    my $self       = shift;
+    my $value      = shift;
     my $prev_value = $self->_is_absolute_url;
     $self->_is_absolute_url($value) if defined $value;
-    return $prev_value
+    return $prev_value;
 }
 
 sub _load_attributes_by_path {
@@ -168,8 +175,9 @@ sub sess_servise_geturl {
         }
         $str .= "?" . join "&" => @pars;
     }
+
     #set absolute path
-    $str = $self->Cgi_env->{base_url} . $str if  $self->set_absolute_url;
+    $str = $self->Cgi_env->{base_url} . $str if $self->set_absolute_url;
     return $str;
 }
 

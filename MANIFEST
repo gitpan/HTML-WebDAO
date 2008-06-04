@@ -4,6 +4,7 @@ contrib/Test_t.pm
 contrib/TestLoad.pm
 contrib/TestWDAO.pm
 contrib/tservices.pl
+contrib/webdao
 lib/Apache/Directives2.pm
 lib/Apache/WebDAO.pm
 lib/HTML/WebDAO.pm

@@ -9,7 +9,6 @@ WriteMakefile
                            'DateTime::Format::HTTP' => '0.37',
                            'Encode' => '0',
                            'FCGI' => '0.67',
-                           'FreezeThaw' => '0.43',
                            'Getopt::Long' => '2.35',
                            'MLDBM' => '0',
                            'XML::LibXML' => '0'

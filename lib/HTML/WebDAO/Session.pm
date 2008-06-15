@@ -1,4 +1,4 @@
-#$Id: Session.pm 281 2008-06-04 12:44:05Z zag $
+#$Id: Session.pm 292 2008-06-15 08:24:28Z zag $
 
 package HTML::WebDAO::Session;
 use HTML::WebDAO::Base;
@@ -40,7 +40,7 @@ sub Init {
     #workaround for CGI.pm: http://rt.cpan.org/Ticket/Display.html?id=36435
     my %accept = ();
     if ( $cv->http('accept') ) {
-        map { $_ => $cv->Accept($_) } $cv->Accept();
+        %accept = map { $_ => $cv->Accept($_) } $cv->Accept();
     }
     Cgi_env $self (
         {

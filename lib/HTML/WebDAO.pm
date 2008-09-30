@@ -1,4 +1,4 @@
-#$Id: WebDAO.pm 304 2008-08-24 16:10:51Z zag $
+#$Id: WebDAO.pm 344 2008-09-30 12:45:11Z zag $
 
 package HTML::WebDAO;
 
@@ -14,7 +14,7 @@ use HTML::WebDAO::Sessionco;
 use HTML::WebDAO::Lib::RawHTML;
 our @ISA = qw();
 
-our $VERSION = '0.90';
+our $VERSION = '0.91';
 
 
 

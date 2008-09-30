@@ -1,4 +1,4 @@
-#$Id: Base.pm 97 2007-06-17 13:18:56Z zag $
+#$Id: Base.pm 338 2008-09-28 13:14:54Z zag $
 
 package HTML::WebDAO::Base;
 
@@ -188,6 +188,7 @@ sub _log {
     my $self = shift;
     my %args = @_;
     my ($mod_sub,$str) = (caller(2))[3,2];
+    ($str) = (caller(1))[2];
     print STDERR "$$ [$args{level}] $mod_sub:$str  @{$args{par}} \n";
 }
 
